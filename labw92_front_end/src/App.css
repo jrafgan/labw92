@@ -52,8 +52,7 @@
 }
 
 .main_register_div,
-.main_login_div,
-.product_add_div {
+.main_login_divn{
   display: grid;
 }
 
@@ -89,7 +88,6 @@
 }
 
 .submit_btn {
-  /*padding: 15px 25px;*/
   font-size: 24px;
   text-align: center;
   cursor: pointer;
