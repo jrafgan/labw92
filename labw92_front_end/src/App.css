@@ -1,0 +1,115 @@
+.App {
+  display: grid;
+  grid-template-columns: 20% auto;
+  height: 100%;
+  width: 100%;
+}
+
+.h2 {
+  display: grid;
+  justify-self: center;
+  margin-top: 0;
+}
+
+.img_thumbnail {
+  display: grid;
+  grid-row: 1 / 3;
+    width: 100px;
+    height: 100px;
+}
+
+.main_nav {
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  background: azure;
+  padding: 20px;
+}
+
+.user_menu,
+.anonymous_menu {
+  display: grid;
+  grid-template-columns: auto auto;
+}
+
+.form {
+  display: grid;
+  grid-template-columns: auto;
+  grid-row-gap: 10px;
+}
+
+.element {
+  display: grid;
+  grid-template-columns: auto;
+}
+
+.login_div,
+.register_div {
+  display: grid;
+  justify-self: center;
+  background: azure;
+  padding: 30px;
+  margin-top: 20px;
+}
+
+.main_register_div,
+.main_login_div,
+.product_add_div {
+  display: grid;
+}
+
+.input {
+  border-radius: 5px;
+}
+
+.categories_div {
+  display: grid;
+  grid-template-columns: auto;
+  grid-row-gap: 20px;
+  text-align: left;
+}
+
+.product_thumbnail_div {
+  display: grid;
+  grid-template-columns: repeat(5, auto);
+  grid-gap: 20px;
+}
+
+.product_thumbnail {
+  padding: 10px;
+}
+
+.invalid-feedback {
+  color: red;
+  border: 1px solid red;
+}
+
+.alert {
+  color: red;
+  border: 1px solid red;
+}
+
+.submit_btn {
+  /*padding: 15px 25px;*/
+  font-size: 24px;
+  text-align: center;
+  cursor: pointer;
+  outline: none;
+  color: #fff;
+  background-color: #4CAF50;
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 9px #999;
+  width: 100px;
+}
+
+.submit_btn:hover {background-color: #3e8e41}
+
+.submit_btn:active {
+  background-color: #3e8e41;
+  box-shadow: 0 5px #666;
+  transform: translateY(4px);
+}
+
+.img_full_info {
+  width: 300px;
+}
