@@ -9,7 +9,6 @@ const UserMenu = ({user, logout}) => {
                 Hello, {user.username}!
             </div>
             <div className="user_menu">
-                <NavLink to="/add_product" exact>Add product</NavLink>
                 <NavLink onClick={logout} to="/" exact>Exit</NavLink>
             </div>
         </div>)

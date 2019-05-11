@@ -8,7 +8,7 @@ const AnonymousMenu = () => (
         </div>
 
         <div>
-            <NavLink to="/login" exact>Enter</NavLink>
+            <NavLink to="/" exact>Enter</NavLink>
         </div>
     </div>
 );

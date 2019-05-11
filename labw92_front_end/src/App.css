@@ -52,7 +52,7 @@
 }
 
 .main_register_div,
-.main_login_divn{
+.main_login_div {
   display: grid;
 }
 
@@ -60,14 +60,14 @@
   border-radius: 5px;
 }
 
-.categories_div {
+.users_div {
   display: grid;
   grid-template-columns: auto;
   grid-row-gap: 20px;
   text-align: left;
 }
 
-.product_thumbnail_div {
+.messages_thumbnail_div {
   display: grid;
   grid-template-columns: repeat(5, auto);
   grid-gap: 20px;
@@ -110,4 +110,8 @@
 
 .img_full_info {
   width: 300px;
+}
+
+.active {
+  color: limegreen;
 }

@@ -6,9 +6,7 @@ import FormElement from "../components/UI/FormElement";
 class Register extends Component {
     state = {
         username: '',
-        password: '',
-        displayName: '',
-        phoneNumber: '',
+        password: ''
     };
 
     inputChangeHandler = e => {
@@ -54,26 +52,6 @@ class Register extends Component {
                             error={this.getFieldError('password')}
                             placeholder="Enter new secure password"
                             autocomplete="new-password"
-                        />
-                        <FormElement
-                            propertyName="displayName"
-                            title="Display name"
-                            type="text"
-                            value={this.state.displayName}
-                            onChange={this.inputChangeHandler}
-                            error={this.getFieldError('displayName')}
-                            placeholder="Enter your Display Name"
-                            autocomplete="new-displayName"
-                        />
-                        <FormElement
-                            propertyName="phoneNumber"
-                            title="Phone number"
-                            type="text"
-                            value={this.state.phoneNumber}
-                            onChange={this.inputChangeHandler}
-                            error={this.getFieldError('phoneNumber')}
-                            placeholder="Enter your phon number"
-                            autocomplete="new-phone number"
                         />
                         <div>
 

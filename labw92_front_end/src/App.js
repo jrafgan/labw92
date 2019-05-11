@@ -1,29 +1,20 @@
 import React, {Component, Fragment} from 'react';
-import {Route, Switch, withRouter} from "react-router-dom";
-import Main from "./containers/Main";
-import AddProduct from "./containers/AddProduct";
-import ProductInfo from "./containers/ProductInfo";
-import CategoryProducts from "./containers/CategoryProducts";
-import Layout from "./components/Layout";
-import Register from "./containers/Register";
-import Login from "./containers/Login";
+import {withRouter} from "react-router-dom";
 import {connect} from "react-redux";
 import {logoutUser} from "./store/actions/usersActions";
-
+import Routes from "./Routes";
+import Layout from "./components/Layout";
 
 class App extends Component {
     render() {
         return (
             <Fragment>
-                <Layout user={this.props.user} logout={this.props.logoutUser}/>
-                    <Switch>
-                        <Route path="/" exact component={Main} />
-                        <Route path="/category/:id" component={CategoryProducts} />
-                        <Route path="/add_product" exact component={AddProduct} />
-                        <Route path="/product_info/:id" component={ProductInfo} />
-                        <Route path="/register" exact component={Register} />
-                        <Route path="/login" exact component={Login} />
-                    </Switch>
+                <header>
+                    <Layout user={this.props.user} logout={this.props.logoutUser}/>
+                </header>
+                <div style={{marginTop: '20px'}}>
+                    <Routes user={this.props.user} />
+                </div>
             </Fragment>
         );
     }

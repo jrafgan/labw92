@@ -7,7 +7,7 @@ export const CREATE_PRODUCT_FAILURE = 'CREATE_PRODUCT_FAILURE';
 
 
 export const fetchCategoriesSuccess = categories => ({type: FETCH_CATEGORIES_SUCCESS, categories});
-export const fetchProductsSuccess = products => ({type: FETCH_PRODUCTS_SUCCESS, products});
+export const fetchProductsSuccess = messages => ({type: FETCH_PRODUCTS_SUCCESS, messages});
 export const createProductFailure = error => ({type: CREATE_PRODUCT_FAILURE, error});
 
 export const getCategories = () => {
@@ -30,9 +30,8 @@ export const getProducts = () => {
 };
 
 export const getProductsByCategory = (categoryId) => {
-    console.log(categoryId)
     return dispatch => {
-        return axios.get('/products?category=' + categoryId).then(
+        return axios.get('/chat?category=' + categoryId).then(
             response => {
                 dispatch(fetchProductsSuccess(response.data));
                 console.log(response.data);
@@ -44,7 +43,7 @@ export const getProductsByCategory = (categoryId) => {
 export const getProductById = (id) => {
 
     return dispatch => {
-        return axios.get('/products/' + id).then(
+        return axios.get('/chat/' + id).then(
             response => {
                 dispatch(fetchProductsSuccess(response.data));
                 console.log('this is ', response.data);
@@ -58,7 +57,7 @@ export const createProduct = productData => {
     return (dispatch, getState) => {
         const token = getState().users.user.token;
         const config = {headers: {'Authorization': token}};
-        return axios.post('/products/', productData, config).then(
+        return axios.post('/chat/', productData, config).then(
             response => {
                 console.log(response.data);
                 dispatch(push('/'));

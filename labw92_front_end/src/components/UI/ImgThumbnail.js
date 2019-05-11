@@ -1,5 +1,5 @@
 import React from 'react';
-import imageNotAvailable from '../../assets/images/photo5801815967637023005.jpg';
+import imageNotAvailable from '../../assets/images/chat.png';
 import {apiURL} from "../../constants";
 
 const ImgThumbnail = props => {
