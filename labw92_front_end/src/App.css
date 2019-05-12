@@ -111,7 +111,17 @@
 .img_full_info {
   width: 300px;
 }
-
 .active {
   color: limegreen;
+}
+
+.messages_div {
+  height: 400px;
+  overflow: auto;
+  border: 1px dashed darkgrey;
+  padding: 20px;
+}
+
+.chat_form {
+  padding: 10px;
 }

@@ -1,5 +1,5 @@
 const express = require('express');
-const Product = require('../models/Product');
+const Message = require('../models/Message');
 const router = express.Router();
 const auth = require('../middleware/auth');
 const multer = require('multer');
@@ -22,13 +22,13 @@ router.get('/', async (req, res) => {
 
     if (req.query.category) {
         const id = req.query.category;
-        const product = await Product.find({category: id}).populate('user').sort({datetime: -1});
-        if (product) res.send(product);
+        const message = await Message.find({category: id}).populate('user');
+        if (message) res.send(message);
         else res.sendStatus(500);
     } else {
-        const products = await Product.find().populate('user').populate('category').sort({datetime: -1});
+        const message = await Message.find().populate('user');
 
-        if (products) res.send(products);
+        if (message) res.send(message);
         else res.sendStatus(500);
     }
 
@@ -36,24 +36,23 @@ router.get('/', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
     const id = req.params.id;
-    const product = await Product.findOne({_id: id}).populate('user').populate('category');
-    if (product) res.send(product);
+    const message = await Message.findOne({_id: id}).populate('user');
+    if (message) res.send(message);
     else res.sendStatus(500);
 });
 
-router.post('/', auth, upload.single('image'), async (req, res) => {
+router.post('/', auth, async (req, res) => {
     try {
 
-        const productData = req.body;
+        const messageData = req.body;
 
-        productData.user = req.user;
+        messageData.user = req.user;
         if (req.file) {
-            productData.image = req.file.filename;
+            messageData.image = req.file.filename;
         }
-        const product = new Product(productData);
-        await product.save();
-        const products = await Product.find().populate('user').sort({datetime: -1});
-        res.status(200).send(products);
+        const message = new Message(messageData);
+        await message.save();
+        res.status(200).send(message);
 
     } catch (error) {
         return res.status(400).send(error)
@@ -63,10 +62,10 @@ router.post('/', auth, upload.single('image'), async (req, res) => {
 
 router.delete('/', auth, async (req, res) => {
     try {
-        const product = await Product.findById(req.body.product);
-        if (product.user.equals(req.user._id)) {
-            product.remove();
-            return res.status(200).send('Successfully deleted ' + product);
+        const message = await Message.findById(req.body.product);
+        if (message.user.equals(req.user._id)) {
+            message.remove();
+            return res.status(200).send('Successfully deleted ' + message);
         } else {
             return res.status(400).send('Not allowed !');
         }

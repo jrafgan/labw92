@@ -33,6 +33,7 @@ router.post('/sessions', async (req, res) => {
     user.generateToken();
 
     await user.save();
+    console.log('this is user in Login process', user);
 
     res.send({message: 'Login successful ', user});
 });

@@ -16,6 +16,7 @@ const loginUserSuccess = user => ({type: LOGIN_USER_SUCCESS, user});
 const loginUserFailure = error => ({type: LOGIN_USER_FAILURE, error});
 
 export const logoutUser = () => {
+    const event = new CloseEvent('CLOSED');
     console.log('this is logout ');
     return (dispatch, getState) => {
         const token = getState().users.user.token;

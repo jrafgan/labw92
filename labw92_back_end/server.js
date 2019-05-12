@@ -2,11 +2,12 @@ const express = require('express');
 const config = require('./config');
 const cors = require('cors');
 const mongoose = require('mongoose');
-const categories = require('./app/categories');
+const User = require('./models/User');
 const users = require('./app/users');
-const products = require('./app/products');
+const Message = require('./models/Message');
 const expressWs = require('express-ws');
 const app = express();
+const nanoid = require('nanoid');
 
 expressWs(app);
 
@@ -18,59 +19,105 @@ const port = 8003;
 const activeConnections = {};
 
 mongoose.connect(config.dbUrl, config.mongoOptions).then(() => {
-  app.use('/products', products);
-  app.use('/categories', categories);
-  app.use('/users', users);
+    app.use('/users', users);
 
-  app.listen(port, () => {
-    console.log(`Server started on ${port} port`);
-  });
-});
 
-app.ws('/chat', (ws, req) => {
-  const id = nanoid();
-  console.log('client connected! id = ', id);
+    app.ws('/chat', async (ws, req) => {
 
-  activeConnections[id] = ws;
-
-  let username = '';
-
-  ws.on('message', msg => {
-    let decodedMessage;
-    try {
-      decodedMessage = JSON.parse(msg);
-    } catch (e) {
-      return console.log('Not a valid message ');
-    }
-
-    switch (decodedMessage.type) {
-      case 'SET_USERNAME': //{type : 'SET_USERNAME', username: 'John Doe'}
-        username = decodedMessage.username;
-        break;
-      case 'CREATE_MESSAGE': //{type: 'CREATE_MESSAGE', text: 'Hello'}
-        // {type: 'NEW_MESSAGE', text: 'Hello'}
-        Object.keys(activeConnections).forEach(connId => {
-          const conn = activeConnections[connId];
-          conn.send(JSON.stringify({
-            type: 'NEW_MESSAGE',
-            message: {
-              username,
-              text: decodedMessage.text
+        try {
+            const token = req.query.token;
+            console.log('this is token ', token);
+            if (!token) {
+                return ws.close();
             }
-          }))
-        });
-        break;
 
-      default:
-        console.log('Not valid message type :  ', decodedMessage.type);
-    }
+            const user = await User.findOne({token});
+            console.log('this is found user ', user);
+            if (!user) {
+                return ws.close();
+            }
 
-    ws.send(msg);
+            const id = nanoid();
 
-  });
+            activeConnections[id] = {user, ws};
+            console.log('this is activeConnections', activeConnections);
 
-  ws.on('close', msg => {
-    console.log('client disconnected id = ', id);
-    delete activeConnections[id];
-  })
+            const usernames = Object.keys(activeConnections).map(connId => {
+                const conn = activeConnections[connId];
+                console.log('this is connId line 46', conn.user.username);
+                return conn.user.username;
+            });
+
+            console.log('this is usernames ', usernames);
+
+            ws.send(JSON.stringify({ //список активных юзеров
+                type: 'ACTIVE_USERS',
+                usernames
+            }));
+
+            ws.send(JSON.stringify({ //последние 30 сообщений
+                type: 'LATEST_MESSAGES',
+                messages: await Message.find().sort({datetime: -1}).limit(30)
+            }));
+
+            ws.on('message', async msg => {
+                let decodedMessage;
+                try {
+                    decodedMessage = JSON.parse(msg);
+                } catch (e) {
+                    return console.log('Not a valid message ');
+                }
+
+                switch (decodedMessage.type) {
+
+                    case 'CREATE_MESSAGE':
+                        const messageData = {
+                            user: user.username,
+                            text: decodedMessage.text
+                        };
+
+                        const message = new Message(messageData);
+                        await message.save();
+                        Object.keys(activeConnections).forEach(async connId => {
+
+                            const conn = activeConnections[connId];
+                            const messages = await Message.find().sort({datetime: -1}).limit(30);
+
+                            conn.ws.send(JSON.stringify({
+                                type: 'NEW_MESSAGE',
+                                message: messages,
+                            }));
+                            conn.ws.send(JSON.stringify({
+                                type: 'ACTIVE_USERS',
+                                usernames
+                            }))
+                        });
+                        break;
+
+                    default:
+                        console.log('Not valid message type :  ', decodedMessage.type);
+                }
+
+                ws.send(msg);
+
+            });
+
+            ws.on('close', msg => {
+                console.log('client disconnected id = ', id);
+                delete activeConnections[id];
+                Object.keys(activeConnections).map(connId => {
+                    ws.send(JSON.stringify({
+                        type: "DELETED_USER",
+                        username: user.username
+                    }))
+                });
+            })
+        } catch (e) {
+            return ws.send(e)
+        }
+    });
+
+    app.listen(port, () => {
+        console.log(`Server started on ${port} port`);
+    });
 });

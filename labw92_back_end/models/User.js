@@ -20,19 +20,17 @@ const UserSchema = new Schema({
             message: 'This username is already taken '
         }
     },
+    role: {
+        type: String,
+        required: true,
+        default: 'user',
+        enum: ['moderator', 'user']
+    },
     password: {
         type: String,
         required: true
     },
     token: {
-        type: String,
-        required: true
-    },
-    displayName: {
-        type: String,
-        required: true
-    },
-    phoneNumber: {
         type: String,
         required: true
     }

@@ -35,7 +35,6 @@ export const getProductsByCategory = (categoryId) => {
             response => {
                 dispatch(fetchProductsSuccess(response.data));
                 console.log(response.data);
-
             });
     };
 };
@@ -73,4 +72,3 @@ export const createProduct = productData => {
             });
     };
 };
-

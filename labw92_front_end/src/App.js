@@ -6,6 +6,11 @@ import Routes from "./Routes";
 import Layout from "./components/Layout";
 
 class App extends Component {
+
+    closeWebsocket = () =>{
+
+    };
+
     render() {
         return (
             <Fragment>
