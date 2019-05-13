@@ -24,97 +24,105 @@ mongoose.connect(config.dbUrl, config.mongoOptions).then(() => {
 
     app.ws('/chat', async (ws, req) => {
 
-        try {
-            const token = req.query.token;
-            console.log('this is token ', token);
-            if (!token) {
-                return ws.close();
-            }
 
-            const user = await User.findOne({token});
-            console.log('this is found user ', user);
-            if (!user) {
-                return ws.close();
-            }
-
-            const id = nanoid();
-
-            activeConnections[id] = {user, ws};
-            console.log('this is activeConnections', activeConnections);
-
-            const usernames = Object.keys(activeConnections).map(connId => {
-                const conn = activeConnections[connId];
-                console.log('this is connId line 46', conn.user.username);
-                return conn.user.username;
-            });
-
-            console.log('this is usernames ', usernames);
-
-            ws.send(JSON.stringify({ //список активных юзеров
-                type: 'ACTIVE_USERS',
-                usernames
-            }));
-
-            ws.send(JSON.stringify({ //последние 30 сообщений
-                type: 'LATEST_MESSAGES',
-                messages: await Message.find().sort({datetime: -1}).limit(30)
-            }));
-
-            ws.on('message', async msg => {
-                let decodedMessage;
-                try {
-                    decodedMessage = JSON.parse(msg);
-                } catch (e) {
-                    return console.log('Not a valid message ');
-                }
-
-                switch (decodedMessage.type) {
-
-                    case 'CREATE_MESSAGE':
-                        const messageData = {
-                            user: user.username,
-                            text: decodedMessage.text
-                        };
-
-                        const message = new Message(messageData);
-                        await message.save();
-                        Object.keys(activeConnections).forEach(async connId => {
-
-                            const conn = activeConnections[connId];
-                            const messages = await Message.find().sort({datetime: -1}).limit(30);
-
-                            conn.ws.send(JSON.stringify({
-                                type: 'NEW_MESSAGE',
-                                message: messages,
-                            }));
-                            conn.ws.send(JSON.stringify({
-                                type: 'ACTIVE_USERS',
-                                usernames
-                            }))
-                        });
-                        break;
-
-                    default:
-                        console.log('Not valid message type :  ', decodedMessage.type);
-                }
-
-                ws.send(msg);
-
-            });
-
-            ws.on('close', msg => {
-                console.log('client disconnected id = ', id);
-                delete activeConnections[id];
-                Object.keys(activeConnections).map(connId => {
-                    ws.send(JSON.stringify({
-                        type: "DELETED_USER",
-                        username: user.username
-                    }))
-                });
-            })
-        } catch (e) {
-            return ws.send(e)
+        const token = req.query.token;
+        if (!token) {
+            return ws.close();
         }
+
+        const user = await User.findOne({token});
+        if (!user) {
+            return ws.close();
+        }
+
+        const id = nanoid();
+
+        activeConnections[id] = {user, ws};
+
+        const usernames = Object.keys(activeConnections).map(connId => {
+            const conn = activeConnections[connId];
+            return conn.user.username;
+        });
+
+        ws.on('open', () => {
+            Object.keys(activeConnections).forEach(async connId => {
+                console.log('this is users', usernames);
+                const conn = activeConnections[connId];
+
+                conn.ws.send(JSON.stringify({
+                    type: 'ACTIVE_USERS',
+                    usernames
+                }));
+
+            });
+        });
+
+        ws.send(JSON.stringify({
+            type: 'ACTIVE_USERS',
+            usernames
+        }));
+
+        console.log('this is usernames ', usernames);
+
+
+
+        ws.send(JSON.stringify({
+            type: 'LATEST_MESSAGES',
+            messages: await Message.find().sort({datetime: -1}).limit(30)
+        }));
+
+        ws.on('message', async msg => {
+
+            let decodedMessage;
+            try {
+                decodedMessage = JSON.parse(msg);
+            } catch (e) {
+                return console.log('Not a valid message ');
+            }
+
+            switch (decodedMessage.type) {
+
+                case 'CREATE_MESSAGE':
+                    const messageData = {
+                        user: user.username,
+                        text: decodedMessage.text
+                    };
+
+                    const message = new Message(messageData);
+                    await message.save();
+                    Object.keys(activeConnections).forEach(async connId => {
+
+                        const conn = activeConnections[connId];
+                        const messages = await Message.find().sort({datetime: -1}).limit(30);
+
+                        conn.ws.send(JSON.stringify({
+                            type: 'NEW_MESSAGE',
+                            message: messages,
+                        }));
+
+                    });
+
+                    break;
+
+                default:
+                    console.log('Not valid message type :  ', decodedMessage.type);
+            }
+        });
+
+        ws.on('close', msg => {
+            console.log('client disconnected id = ', id);
+            delete activeConnections[id];
+            console.log(activeConnections[id]);
+            Object.keys(activeConnections).forEach(async connId => {
+
+                const conn = activeConnections[connId];
+                conn.ws.send(JSON.stringify({
+                    type: "DELETED_USER",
+                    username: user.username
+                }));
+
+            });
+        })
     });
 
     app.listen(port, () => {

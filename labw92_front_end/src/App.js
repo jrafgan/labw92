@@ -7,15 +7,18 @@ import Layout from "./components/Layout";
 
 class App extends Component {
 
-    closeWebsocket = () =>{
-
+    closeWebSocket = () =>{
+        // this.websocket.send(JSON.stringify({
+        //     type: 'CLOSE',
+        // }));
+        this.props.logoutUser();
     };
 
     render() {
         return (
             <Fragment>
                 <header>
-                    <Layout user={this.props.user} logout={this.props.logoutUser}/>
+                    <Layout user={this.props.user} logout={this.closeWebSocket}/>
                 </header>
                 <div style={{marginTop: '20px'}}>
                     <Routes user={this.props.user} />

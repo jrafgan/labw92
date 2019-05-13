@@ -14,15 +14,18 @@ class Main extends Component {
     componentDidMount() {
         this.websocket = new WebSocket('ws://localhost:8003/chat?token=' + this.props.user.token);
 
+        this.websocket.onopen = () => {
+
+        };
+
         this.websocket.onmessage = e => {
 
             const decodedMessage = JSON.parse(e.data);
 
-            console.log(decodedMessage);
+            console.log('this is API response ', decodedMessage);
 
             switch (decodedMessage.type) {
                 case "NEW_MESSAGE":
-                    console.log('This new messages ', decodedMessage.message);
                     this.setState({
                         messages: [
                             ...decodedMessage.message
@@ -44,8 +47,25 @@ class Main extends Component {
                         ]
                     });
                     break;
+
+                default:
+                    break;
             }
-        }
+        };
+
+        this.websocket.onerror = e => {
+            console.error('Socket encountered error: ', e.message, 'Closing socket');
+            this.close();
+            return false;
+        };
+
+        // this.websocket.onclose = e => {
+        //     console.log('Socket is closed. Reconnect will be attempted in 1 second.', e.reason);
+        //     setTimeout(function () {
+        //         this.connect();
+        //         return false;
+        //     }, 1000);
+        // };
     }
 
     inputChangeHandler = e => {
