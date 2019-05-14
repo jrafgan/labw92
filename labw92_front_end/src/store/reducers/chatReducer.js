@@ -4,21 +4,29 @@ import {
 } from "../actions/chatActions";
 
 const initialState = {
-    categories: null,
-    chat: null,
-    error: null,
+    messages: [],
+    onlineUsers: null,
+    leftUser: null,
 };
 
 const chatReducer = (state = initialState, action) => {
     switch (action.type) {
-        case FETCH_CATEGORIES_SUCCESS:
-            return {...state, categories: action.categories};
+        case "NEW_MESSAGE":
+            return {...state, messages: [
+                    ...action.decodedMessage.message
+                ]
+            };
 
-        case CREATE_PRODUCT_FAILURE:
-            return {...state, error: action.error};
+        case "ACTIVE_USERS":
+            return {...state, onlineUsers: action.decodedMessage.usernames};
 
-        case FETCH_PRODUCTS_SUCCESS:
-            return {...state, chat: action.chat};
+        case "LATEST_MESSAGES":
+            return {...state, messages: [
+                    ...action.decodedMessage.messages
+                ]};
+
+        case "USER_LEFT":
+            return {...state, leftUser: action.decodedMessage.username};
 
         default:
             return state;

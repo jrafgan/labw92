@@ -8,7 +8,8 @@ class Main extends Component {
     state = {
         messageText: '',
         messages: [],
-        onlineUsers: null
+        onlineUsers: null,
+        leftUser: null,
     };
 
     componentDidMount() {
@@ -48,6 +49,12 @@ class Main extends Component {
                     });
                     break;
 
+                case "USER_LEFT":
+                    this.setState({
+                        leftUser: decodedMessage.username
+                    });
+                    break;
+
                 default:
                     break;
             }
@@ -59,13 +66,9 @@ class Main extends Component {
             return false;
         };
 
-        // this.websocket.onclose = e => {
-        //     console.log('Socket is closed. Reconnect will be attempted in 1 second.', e.reason);
-        //     setTimeout(function () {
-        //         this.connect();
-        //         return false;
-        //     }, 1000);
-        // };
+        this.websocket.onclose = e => {
+            console.log(e.reason);
+        };
     }
 
     inputChangeHandler = e => {
@@ -98,6 +101,9 @@ class Main extends Component {
                             {message.text}
                         </p>
                     ))}
+                    {this.state.leftUser ? <p>
+                        <b>{`${this.state.leftUser} left chat room`} </b>
+                    </p> : null}
                 </div>
                 <form onSubmit={this.sendMessage} className="chat_form">
                     <input
