@@ -44,17 +44,20 @@ mongoose.connect(config.dbUrl, config.mongoOptions).then(() => {
             return conn.user.username;
         });
 
-        ws.on('open', () => {
-            Object.keys(activeConnections).forEach(async connId => {
-                console.log('this is users', usernames);
-                const conn = activeConnections[connId];
+        ws.on('connection', req => {
 
-                conn.ws.send(JSON.stringify({
-                    type: 'ACTIVE_USERS',
-                    usernames
-                }));
+            ws.send('this is connection ');
 
-            });
+            // Object.keys(activeConnections).forEach(async connId => {
+            //     console.log('this is users on connection ', usernames);
+            //     const conn = activeConnections[connId];
+            //
+            //     conn.ws.send(JSON.stringify({
+            //         type: 'ACTIVE_USERS',
+            //         usernames
+            //     }));
+            //
+            // });
         });
 
         ws.send(JSON.stringify({
@@ -63,7 +66,6 @@ mongoose.connect(config.dbUrl, config.mongoOptions).then(() => {
         }));
 
         console.log('this is usernames ', usernames);
-
 
 
         ws.send(JSON.stringify({
@@ -109,19 +111,24 @@ mongoose.connect(config.dbUrl, config.mongoOptions).then(() => {
             }
         });
 
-        ws.on('close', msg => {
+        ws.on('close', () => {
             console.log('client disconnected id = ', id);
             delete activeConnections[id];
-            console.log(activeConnections[id]);
-            Object.keys(activeConnections).forEach(async connId => {
 
+            const ndx = usernames.findIndex(username => username === user.username);
+            const name = usernames.splice(ndx, 1);
+            console.log('this is on close username ', usernames);
+
+            Object.keys(activeConnections).forEach(connId => {
                 const conn = activeConnections[connId];
-                conn.ws.send(JSON.stringify({
-                    type: "DELETED_USER",
-                    username: user.username
+                console.log('this is conn ', conn);
+                ws.send(JSON.stringify({
+                    type: "USER_LEFT",
+                    username: name
                 }));
 
             });
+
         })
     });
 
